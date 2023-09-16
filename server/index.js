@@ -9,7 +9,10 @@ import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
-
+import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/users.js";
+import {register} from "./controllers/auth.js";
+import { verifyToken } from "./middleware/auth.js";
 
 /* CONFIGURATION */
 
@@ -38,12 +41,21 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+
+
+/* ROUTES WITH FILES */ 
+app.post("/auth/register", upload.single("picture"),verifyToken, register);
+
+/* ROUTES */
+app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
+
 /*  MONGOOSE SETUP */
 
 const PORT = process.env.PORT || 6001;
 mongoose.connect(process.env.MONGO_URL, {
-    useNewUrlParser :true ,
-    useUnifiedToplogy: true
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 })
 .then(() => {
     app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
